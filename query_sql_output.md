@@ -63,14 +63,15 @@
 
 ---
 **Query #4:** *Find the day with the highest revenue.*
-    -- Option 1
+    
+    -- Option 1    
     SELECT order_date, day_revenue FROM (WITH 
-                                         order_revenue AS 
-                                         (SELECT o.order_id, SUM(o.quantity * p.price) as order_revenue 
-                                          FROM order_items as o
-                                          LEFT JOIN products as p
-                                          ON o.product_id = p.product_id
-                                          GROUP BY o.order_id)
+                                        order_revenue AS 
+                                        (SELECT o.order_id, SUM(o.quantity * p.price) as order_revenue 
+                                        FROM order_items as o
+                                        LEFT JOIN products as p
+                                        ON o.product_id = p.product_id
+                                        GROUP BY o.order_id)
     SELECT od.order_date, SUM(ore.order_revenue) as day_revenue,
     DENSE_RANK() OVER (ORDER BY SUM(ore.order_revenue) DESC) as rnk
     FROM orders as od
@@ -79,6 +80,11 @@
     GROUP BY od.order_date) tmp
     WHERE rnk = 1;
 
+| order_date               | day_revenue |
+| ------------------------ | ----------- |
+| 2023-05-16T00:00:00.000Z | 340.00      |
+
+---    
     -- Option 2
     WITH ord_cost as (SELECT oi.order_id, SUM(oi.quantity*p.price) as order_total
                     FROM order_items as oi
@@ -92,9 +98,10 @@
     GROUP BY 1
     ORDER BY 2 DESC)tmp WHERE rnk = 1;
 
+
     -- Option 3
-    select  to_char(o.order_date, 'day') as Day, sum(p.price*oi.quantity) as Revenue
-    from products p 
+    SELECT  to_char(o.order_date, 'day') as Day, sum(p.price*oi.quantity) as Revenue
+    FROM products p 
     join order_items oi 
     on p.product_id=oi.product_id
     join orders o
@@ -103,9 +110,9 @@
     order by 2 DESC
     LIMIT 1
 
-| order_date               | day_revenue |
+| Day                      | Revenue     |
 | ------------------------ | ----------- |
-| 2023-05-16T00:00:00.000Z | 340.00      |
+| tuesday                  | 555.00      |
 
 ---
 **Query #5:** *Find the first order (by date) for each customer.*
